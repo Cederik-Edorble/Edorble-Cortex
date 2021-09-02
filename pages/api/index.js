@@ -1,4 +1,5 @@
 const { ApolloServer} = require('apollo-server');
+const { buildSubgraphSchema } = require('@apollo/federation');
 const md5 = require('md5');
 
 const { typeDefs } = require('../../GraphQL/schema');
@@ -15,13 +16,17 @@ const resolvers = {
     getUsers: () => users,
     getWorld: (_, { id }) => worlds.find((w) => w.id === id),
     getWorlds: () => worlds,
+    getMap: (_, { id }) => maps.find((m) => m.id === id),
     getMaps: () => maps,
+    getRegion: (_, { id }) => regions.find((r) => r.id === id),
     getRegions: () => regions,
     getUser: (_, { id }) => users.find((u) => u.id === id),
     getUserWorld: (_, { user }) => worlds.filter((w) => w.user === user),
     getUserMaps: (_, { user }) => maps.filter((m) => m.user === user),
     getMapRegion: (_, { map }) => regions.filter((r) => r.map === map),
+    getScreen: (_, { id }) => screens.find((s) => s.id === id),
     getRegionScreen: (_, { region }) => screens.filter((s) => s.region === region),
+    getContent: (_, { id }) => content.find((c) => c.id === id),
     getScreenContent: (_, { screen, world }) => contents.filter((c) => c.screen === screen && c.world === world),
     authUser: (_, { input: { email, password } }) => {
       const user = users.find((u) => u.email === email);
@@ -180,14 +185,48 @@ const resolvers = {
       screens.splice(i, 1);
       return screens.filter((s) => s.region === region);
     }
+  },
+  User: {
+    __resolveReference(user, { getUser }){
+      return getUser(user.id)
+    }
+  },
+  World: {
+    __resolveReference(world, { getWorld }){
+      return getWorld(world.id)
+    }
+  },
+  Map: {
+    __resolveReference(map, { getMap }){
+      return getMap(map.id)
+    }
+  },
+  Region: {
+    __resolveReference(region, { getRegion }){
+      return getRegion(region.id)
+    }
+  },
+  Screen: {
+    __resolveReference(screen, { getScreen }){
+      return getScreen(screen.id)
+    }
+  },
+  Content: {
+    __resolveReference(content, { getContent }){
+      return getContent(content.id)
+    }
   }
 };
 
+//Important, Edorble Cortex members are subgraphs of a Graphql Federation. 
+//Use the buildSubgraphSchema function from the @apollo/federation package to augment your schema definition with federation support.
+//More information: https://www.apollographql.com/docs/federation/subgraphs/
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  playground: true,
-  introspection: true
+  schema: buildSubgraphSchema([{
+    typeDefs,
+    resolvers,
+    playground: true,
+    introspection: true }])
 });
 
 // The `listen` method launches a web server.

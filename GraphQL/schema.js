@@ -2,7 +2,7 @@ const { gql } = require('apollo-server');
 
 const typeDefs = gql`
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
-  type User {
+  type User @key(fields: "id") {
     id:Int
     email: String
     password: String
@@ -13,7 +13,7 @@ const typeDefs = gql`
     password: String!
   }
   
-  type World{
+  type World @key(fields: "id"){
     id:Int
     accessCode:Int
     name:String
@@ -42,7 +42,7 @@ const typeDefs = gql`
     map:Int
   }
 
-  type Map{
+  type Map @key(fields: "id"){
     id:Int
     name: String
     created:String
@@ -69,7 +69,7 @@ const typeDefs = gql`
     macLink:String
     version:String
   }
-  type Region{
+  type Region @key(fields: "id"){
     id:Int
     map:Int
     name:String
@@ -85,7 +85,7 @@ const typeDefs = gql`
     map:Int!
   }
   
-  type Screen{
+  type Screen @key(fields: "id"){
     id:Int
     region:Int
     name:String
@@ -100,7 +100,8 @@ const typeDefs = gql`
     region:Int!
     name:String!
   }
-  type Content{
+  
+  type Content @key(fields: "id"){
     id:Int
     screen:Int
     world:Int
